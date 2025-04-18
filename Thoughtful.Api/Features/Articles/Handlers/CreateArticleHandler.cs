@@ -24,11 +24,12 @@ namespace Thoughtful.Api.Features.Articles.Handlers
             }
             var newArticle = Article.CreateArticle(request.Article.Title, request.Article.Subtitle,
                 request.Article.Body, request.Article.AuthorId, request.Article.NumberOfLikes, request.Article.NumberOfShares);
-
+            var author = await _context.Authors.FirstOrDefaultAsync(a => a.Id == request.Article.AuthorId);
+            var category = await _context.Categories.FirstOrDefaultAsync(a => a.Id == request.Article.CategoryId);
+            newArticle.Author = author;
+            newArticle.Category = category;
             _context.Articles.Add(newArticle);
-            await _context.SaveChangesAsync();
-            var author = await _context.Authors.FirstOrDefaultAsync(a => a.Id == newArticle.AuthorId);
-            newArticle.SetAuthor(author);
+            int result = await _context.SaveChangesAsync();
 
             return await Task.FromResult(Result<ArticleGetDto>.Success(_mapper.Map<ArticleGetDto>(newArticle)));
         }

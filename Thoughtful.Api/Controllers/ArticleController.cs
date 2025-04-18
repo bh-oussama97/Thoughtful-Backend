@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Thoughtful.Api.Common;
 using Thoughtful.Api.Features.Articles.Commands;
 using Thoughtful.Api.Features.Articles.DTO;
 using Thoughtful.Api.Features.Articles.Queries;
@@ -35,11 +36,19 @@ namespace Thoughtful.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Article>> CreateArticle(ArticleDTO article)
+        public async Task<ActionResult<Result<ArticleGetDto>>> CreateArticle(ArticleDTO article)
         {
-            var command = new CreateArticle { Article = article };
-            var result = await _mediator.Send(command);
-            return Ok(result);
+            try
+            {
+                var command = new CreateArticle { Article = article };
+                var result = await _mediator.Send(command);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return await Task.FromResult(Result<ArticleGetDto>.Failure(new Error($"Exception: {ex.Message}", "Exception")));
+
+            }
         }
 
         [HttpPut]
