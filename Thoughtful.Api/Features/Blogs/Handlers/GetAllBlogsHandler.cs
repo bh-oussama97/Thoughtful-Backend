@@ -18,15 +18,11 @@ namespace Thoughtful.Api.Features.Blogs.Handlers
         {
             try
             {
-                //var blogs = await _ctx.Blogs.ToListAsync();
-                //var blogDtos = _mapper.Map<List<BlogGetDTO>>(blogs);
-                //return await Task.FromResult(Result<List<BlogGetDTO>>.Success(blogDtos));
+                var blogs = _ctx.Blogs.AsQueryable();
 
-                var makes = _ctx.Blogs.AsQueryable();
+                var blogDtos = await blogs.Include(m => m.Contributors).ToListAsync();
 
-                var vehicleMakes = await makes.Include(m => m.Contributors).ToListAsync();
-
-                return await Task.FromResult(Result<List<BlogGetDTO>>.Success(_mapper.Map<List<BlogGetDTO>>(vehicleMakes)));
+                return await Task.FromResult(Result<List<BlogGetDTO>>.Success(_mapper.Map<List<BlogGetDTO>>(blogDtos)));
             }
             catch (Exception ex)
             {

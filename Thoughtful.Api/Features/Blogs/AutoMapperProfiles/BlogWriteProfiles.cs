@@ -8,9 +8,7 @@ namespace Thoughtful.Api.Features.Blogs.AutoMapperProfiles
         public BlogWriteProfiles()
         {
             CreateMap<Blog, BlogDTO>().ReverseMap();
-            CreateMap<Blog, BlogGetDTO>()
-                .ForMember(dest => dest.DateCreated, opt => opt.MapFrom(src => src.CreatedDate))
-                .ReverseMap();
+            CreateMap<Blog, BlogGetDTO>().ReverseMap();
         }
     }
 }
