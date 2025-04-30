@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Thoughtful.Api.Common;
+using Thoughtful.Api.Features.Author.Commands;
 using Thoughtful.Api.Features.Blogs.Commands;
 using Thoughtful.Api.Features.Blogs.DTO;
 using Thoughtful.Api.Features.Blogs.Queries;
@@ -21,9 +23,9 @@ namespace Thoughtful.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> AddContributor(int BlogId, int ContributorId)
+        public async Task<ActionResult> AddContribution([FromForm] ContributionDTO contribution)
         {
-            var result = await this._mediator.Send(new AddContributor { BlogId = BlogId, ContributorId = ContributorId });
+            var result = await this._mediator.Send(new AddContributor { Contribution = contribution });
             if (result is null)
             {
                 return NotFound();
@@ -32,10 +34,19 @@ namespace Thoughtful.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetBlogs()
+        public async Task<ActionResult<Result<List<BlogGetDTO>>>> GetBlogs()
         {
-            var result = await this._mediator.Send(new GetAllBlogs());
-            return Ok(result);
+            try
+            {
+                var result = await this._mediator.Send(new GetAllBlogs());
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return await Task.FromResult(Result<List<BlogGetDTO>>.Failure(new Error($"Exception: {ex.Message}", "Exception")));
+
+            }
+
         }
         [HttpGet]
         public async Task<ActionResult> GetBlogById(int id)
@@ -84,6 +95,25 @@ namespace Thoughtful.Api.Controllers
         {
             var result = await this._mediator.Send(new GetBlogsByAuthorQuery { AuthorId = authorId });
             return Ok(result);
+        }
+        [HttpGet]
+        public async Task<ActionResult> GetFile([FromQuery] string filename)
+        {
+
+            var result = await this._mediator.Send(new DownloadBlogFileCommand { Filename = filename });
+
+
+            if (result != null && result.IsSuccess)
+                return File(result.Body, "application/xlsx", $"Template-{DateTime.Now.ToString("yyyyMMddTHHmm")}.xlsx");
+            else
+                return Ok(result);
+
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> ExportXLS()
+        {
+
         }
     }
 }

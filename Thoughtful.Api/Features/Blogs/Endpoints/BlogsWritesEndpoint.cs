@@ -21,13 +21,13 @@ namespace Thoughtful.Api.Features.Blogs.Endpoints
             //    .Produces<BlogCreate>(201)
             //    .Produces(500);
 
-            endpoints.MapSmartPost("api/blogs/{blogId}/contributors", async (int blogId, ContributorAdd contributor,
-                IMediator mediator)
-                => await AddBlogContributor(blogId, contributor, mediator))
-                .WithName("AddContributor")
-                .WithDisplayName("Blogs")
-                .Produces(204)
-                .Produces(500);
+            //endpoints.MapSmartPost("api/blogs/{blogId}/contributors", async (int blogId, ContributorAdd contributor,
+            //    IMediator mediator)
+            //    => await AddBlogContributor(blogId, contributor, mediator))
+            //    .WithName("AddContributor")
+            //    .WithDisplayName("Blogs")
+            //    .Produces(204)
+            //    .Produces(500);
 
             endpoints.MapSmartDelete("api/blogs/{blogdId}/contributors/{contributorId}", async (int blogId, int contributorId,
                 IMediator mediator)
@@ -62,12 +62,12 @@ namespace Thoughtful.Api.Features.Blogs.Endpoints
         //    return Results.CreatedAtRoute("GetBlogById", new { Id = result.Id }, result);
         //}
 
-        private async Task<IResult> AddBlogContributor(int blogId, ContributorAdd contributor, IMediator mediator)
-        {
-            var command = new AddContributor { BlogId = blogId, ContributorId = contributor.ContributorId };
-            await mediator.Send(command);
-            return Results.NoContent();
-        }
+        //private async Task<IResult> AddBlogContributor(int blogId, ContributorAdd contributor, IMediator mediator)
+        //{
+        //    var command = new AddContributor { BlogId = blogId, ContributorId = contributor.ContributorId };
+        //    await mediator.Send(command);
+        //    return Results.NoContent();
+        //}
 
         private async Task<IResult> RemoveContributor(int blogId, int contributorId, IMediator mediator)
         {

@@ -18,18 +18,23 @@ namespace Thoughtful.Api.Features.Blogs.Handlers
         {
             try
             {
-                var blogs = _ctx.Blogs.AsQueryable();
+                string filepath = AppSettings.UploadFilePath;
+                var blogDtos = await _ctx.Blogs
+                    .Include(x => x.Contributors)
+                    .ThenInclude(c => c.User)
+                    .ToListAsync(cancellationToken);
 
-                var blogDtos = await blogs.Include(m => m.Contributors).ToListAsync();
+                var mappedBlogs = _mapper.Map<List<BlogGetDTO>>(blogDtos);
 
-                return await Task.FromResult(Result<List<BlogGetDTO>>.Success(_mapper.Map<List<BlogGetDTO>>(blogDtos)));
+                return Result<List<BlogGetDTO>>.Success(mappedBlogs);
             }
             catch (Exception ex)
             {
-                return await Task.FromResult(Result<List<BlogGetDTO>>.Failure(new Error($"Exception: {ex.Message}", "Exception")));
-
+                var fullMessage = $"{ex.Message}\n{ex.InnerException?.Message}";
+                return Result<List<BlogGetDTO>>.Failure(new Error($"Exception: {fullMessage}", "Exception"));
             }
 
         }
+
     }
 }

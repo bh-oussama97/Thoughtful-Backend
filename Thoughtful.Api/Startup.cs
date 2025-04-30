@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
+using Thoughtful.Api.Common;
 using Thoughtful.Dal;
 using Thoughtful.Domain.Model;
 
@@ -13,6 +14,7 @@ namespace Thoughtful.Api
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            AppSettings.Initiate(Configuration["uploadFilePath"]);
         }
 
         public IConfiguration Configuration { get; }

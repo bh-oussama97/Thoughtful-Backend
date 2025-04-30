@@ -16,10 +16,10 @@ namespace Thoughtful.Api.Features.Blogs.Handlers
         }
         public async Task<Result<List<BlogGetDTO>>> Handle(GetBlogsByAuthorQuery request, CancellationToken cancellationToken)
         {
-            var blogsByAuthor = await _ctx.Blogs
-          .Where(a => a.Contributors.Any(c => c.Id == request.AuthorId))
-          .Select(b => new BlogGetDTO(b)).ToListAsync(cancellationToken);
-            return await Task.FromResult(Result<List<BlogGetDTO>>.Success(blogsByAuthor));
+            //  var blogsByAuthor = await _ctx.Blogs
+            //.Where(a => a.Contributors.Any(c => c.Id == request.AuthorId))
+            //.Select(b => new BlogGetDTO(b)).ToListAsync(cancellationToken);
+            return await Task.FromResult(Result<List<BlogGetDTO>>.Failure(new Error("", "")));
         }
     }
 }

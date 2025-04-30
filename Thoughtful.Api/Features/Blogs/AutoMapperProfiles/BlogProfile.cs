@@ -9,6 +9,12 @@ namespace Thoughtful.Api.Features.Blogs.AutoMapperProfiles
         {
             CreateMap<Blog, BlogGetDTO>()
               .ForMember(dest => dest.Contributors, opt => opt.MapFrom(src => src.Contributors));
+
+            CreateMap<BlogContributor, BlogContributorDto>()
+                .ForMember(dest => dest.User, opt => opt.Ignore());
+
+            CreateMap<AppUser, UserDto>().ReverseMap();
+
         }
 
     }

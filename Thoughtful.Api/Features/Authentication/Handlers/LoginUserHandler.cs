@@ -39,6 +39,7 @@ namespace Thoughtful.Api.Features.Authentication.Handlers
                 commandresult.IsSuccess = true;
                 commandresult.Body = new UserGetDTO
                 {
+                    Id = user.Id,
                     Email = user.Email,
                     UserName = user.UserName,
                     Token = _JwtService.createToken(user)

@@ -22,21 +22,6 @@ namespace Thoughtful.Dal.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("BlogContributors", b =>
-                {
-                    b.Property<int>("AuthorId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("BlogId")
-                        .HasColumnType("int");
-
-                    b.HasKey("AuthorId", "BlogId");
-
-                    b.HasIndex("BlogId");
-
-                    b.ToTable("BlogContributors", (string)null);
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.Property<int>("Id")
@@ -287,6 +272,9 @@ namespace Thoughtful.Dal.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<int?>("AuthorId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
@@ -300,7 +288,35 @@ namespace Thoughtful.Dal.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AuthorId");
+
                     b.ToTable("Blogs");
+                });
+
+            modelBuilder.Entity("Thoughtful.Domain.Model.BlogContributor", b =>
+                {
+                    b.Property<int>("BlogId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("ContributionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Filename")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("BlogId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("BlogContributor");
                 });
 
             modelBuilder.Entity("Thoughtful.Domain.Model.Category", b =>
@@ -349,21 +365,6 @@ namespace Thoughtful.Dal.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("Roles", (string)null);
-                });
-
-            modelBuilder.Entity("BlogContributors", b =>
-                {
-                    b.HasOne("Thoughtful.Domain.Model.Author", null)
-                        .WithMany()
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Thoughtful.Domain.Model.Blog", null)
-                        .WithMany()
-                        .HasForeignKey("BlogId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -440,14 +441,49 @@ namespace Thoughtful.Dal.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("Thoughtful.Domain.Model.Blog", b =>
+                {
+                    b.HasOne("Thoughtful.Domain.Model.Author", null)
+                        .WithMany("BlogsContributedTo")
+                        .HasForeignKey("AuthorId");
+                });
+
+            modelBuilder.Entity("Thoughtful.Domain.Model.BlogContributor", b =>
+                {
+                    b.HasOne("Thoughtful.Domain.Model.Blog", "Blog")
+                        .WithMany("Contributors")
+                        .HasForeignKey("BlogId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Thoughtful.Domain.Model.AppUser", "User")
+                        .WithMany("BlogContributions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Blog");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Thoughtful.Domain.Model.AppUser", b =>
                 {
+                    b.Navigation("BlogContributions");
+
                     b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("Thoughtful.Domain.Model.Author", b =>
                 {
                     b.Navigation("Articles");
+
+                    b.Navigation("BlogsContributedTo");
+                });
+
+            modelBuilder.Entity("Thoughtful.Domain.Model.Blog", b =>
+                {
+                    b.Navigation("Contributors");
                 });
 
             modelBuilder.Entity("Thoughtful.Domain.Model.Category", b =>

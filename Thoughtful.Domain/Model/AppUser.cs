@@ -8,6 +8,6 @@ namespace Thoughtful.Domain.Model
     public class AppUser : IdentityUser
     {
         public ICollection<ApplicationUserRole> UserRoles { get; set; }
-
+        public ICollection<BlogContributor> BlogContributions { get; set; }
     }
 }

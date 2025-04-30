@@ -44,15 +44,15 @@ namespace Thoughtful.Dal
 
             });
             // Many-to-Many: Blog Contributors
-            modelBuilder.Entity<Blog>()
-                .HasMany(b => b.Contributors)
-                .WithMany(a => a.BlogsContributedTo)
-                .UsingEntity<Dictionary<string, object>>(
-                    "BlogContributors",
-                    j => j.HasOne<Author>().WithMany().HasForeignKey("AuthorId"),
-                    j => j.HasOne<Blog>().WithMany().HasForeignKey("BlogId"),
-                    j => j.ToTable("BlogContributors")
-                );
+            //modelBuilder.Entity<Blog>()
+            //    .HasMany(b => b.Contributors)
+            //    .WithMany(a => a.BlogsContributedTo)
+            //    .UsingEntity<Dictionary<string, object>>(
+            //        "BlogContributors",
+            //        j => j.HasOne<Author>().WithMany().HasForeignKey("AuthorId"),
+            //        j => j.HasOne<Blog>().WithMany().HasForeignKey("BlogId"),
+            //        j => j.ToTable("BlogContributors")
+            //    );
 
             // one-to-many: one category -> many articles
             modelBuilder.Entity<Article>()
@@ -75,6 +75,19 @@ namespace Thoughtful.Dal
                 .HasForeignKey(b => b.AuthorId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+
+            modelBuilder.Entity<BlogContributor>()
+       .HasKey(bc => new { bc.BlogId, bc.UserId });
+
+            modelBuilder.Entity<BlogContributor>()
+                .HasOne(bc => bc.Blog)
+                .WithMany(b => b.Contributors)
+                .HasForeignKey(bc => bc.BlogId);
+
+            modelBuilder.Entity<BlogContributor>()
+                .HasOne(bc => bc.User)
+                .WithMany(u => u.BlogContributions)
+                .HasForeignKey(bc => bc.UserId);
 
         }
         public DbSet<Article> Articles { get; set; }

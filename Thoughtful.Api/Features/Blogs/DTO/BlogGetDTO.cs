@@ -8,7 +8,7 @@ namespace Thoughtful.Api.Features.Blogs.DTO
         public string Name { get; init; }
         public string Description { get; init; }
         public DateTime CreatedDate { get; init; }
-        public ICollection<Thoughtful.Domain.Model.Author> Contributors { get; set; }
+        public ICollection<BlogContributorDto> Contributors { get; set; }
         public BlogGetDTO()
         {
 
