@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Thoughtful.Api.Common;
 using Thoughtful.Api.Features.Author.Commands;
+using Thoughtful.Api.Features.Author.Queries;
 using Thoughtful.Api.Features.Blogs.Commands;
 using Thoughtful.Api.Features.Blogs.DTO;
 using Thoughtful.Api.Features.Blogs.Queries;
@@ -114,6 +115,11 @@ namespace Thoughtful.Api.Controllers
         public async Task<ActionResult> ExportXLS()
         {
 
+            var result = await this._mediator.Send(new ExportXLSQuery { });
+            if (result != null && result.IsSuccess)
+                return File(result.Body, "application/xlsx", $"Template-{DateTime.Now.ToString("yyyyMMddTHHmm")}.xlsx");
+            else
+                return Ok(result);
         }
     }
 }
