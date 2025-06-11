@@ -101,6 +101,11 @@ namespace Thoughtful.Api
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+            // app.UseSwagger();
+            // app.UseSwaggerUI();
+            app.UseHttpsRedirection();
+
+
             app.UseCors("FrontEndUI");
             app.UseAuthentication();
             app.UseRouting();

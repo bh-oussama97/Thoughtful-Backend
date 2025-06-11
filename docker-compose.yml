@@ -1,0 +1,36 @@
+services:
+  thoughtfulapi:
+    image: ${DOCKER_REGISTRY-}thoughtfulapi
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+     - "127.0.0.1:8080:80"
+    environment:
+    # - ASPNETCORE_URLS=http://127.0.0.1:8080
+    # - ASPNETCORE_ENVIRONMENT=Development
+      ConnectionStrings__DefaultConnection: "Server=p3000ts01;Database=ThoughtfulDB;User Id=TESTUSER;Password=Test$2020;Trust Server Certificate=True"
+    depends_on:
+      thoughtfuldatabase:
+        condition: service_healthy
+    networks:
+     - thoughtfulnetwork
+    restart: on-failure
+  thoughtfuldatabase:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name:  thoughtfuldatabase
+    ports:
+     - "1433:1433"
+    volumes:
+     - sqlvolume:/var/opt/mssql
+    networks:
+      - thoughtfulnetwork
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Password123$"
+networks:
+ thoughtfulnetwork:
+volumes:
+  sqlvolume:
+    # volumes:
+    #   -
