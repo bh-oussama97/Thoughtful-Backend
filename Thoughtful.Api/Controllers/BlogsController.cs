@@ -98,16 +98,11 @@ namespace Thoughtful.Api.Controllers
             return Ok(result);
         }
         [HttpGet]
-        public async Task<ActionResult> GetFile([FromQuery] string filename)
+        public async Task<IActionResult> GetFile([FromQuery] string filename)
         {
 
-            var result = await this._mediator.Send(new DownloadBlogFileCommand { Filename = filename });
-
-
-            if (result != null && result.IsSuccess)
-                return File(result.Body, "application/xlsx", $"Template-{DateTime.Now.ToString("yyyyMMddTHHmm")}.xlsx");
-            else
-                return Ok(result);
+            var command = new DownloadBlogFileCommand { Filename = filename };
+            return await _mediator.Send(command);
 
         }
 

@@ -1,3 +1,5 @@
+using Thoughtful.Dal;
+
 namespace Thoughtful.Api
 {
     public class Program

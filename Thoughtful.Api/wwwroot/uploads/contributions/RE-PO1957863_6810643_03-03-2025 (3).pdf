@@ -1,2 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Error><Code>SignatureDoesNotMatch</Code><Message>The request signature we calculated does not match the signature you provided. Check your key and signing method.</Message><Key>re_po1957863_6810643_03_03_2025__</Key><BucketName>erp</BucketName><Resource>/erp/re_po1957863_6810643_03_03_2025__</Resource><RequestId>1829A0B7B252E499</RequestId><HostId>dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8</HostId></Error>

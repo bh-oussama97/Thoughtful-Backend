@@ -1,36 +1,47 @@
-services:
+﻿services:
   thoughtfulapi:
-    image: ${DOCKER_REGISTRY-}thoughtfulapi
+    container_name: thoughtfulapi
+    image: thoughtfulapi
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-     - "127.0.0.1:8080:80"
+      - "5000:80"
     environment:
-    # - ASPNETCORE_URLS=http://127.0.0.1:8080
-    # - ASPNETCORE_ENVIRONMENT=Development
-      ConnectionStrings__DefaultConnection: "Server=p3000ts01;Database=ThoughtfulDB;User Id=TESTUSER;Password=Test$2020;Trust Server Certificate=True"
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=p3000ts01;Database=ThoughtfulDB;User Id=TESTUSER;Password=Test$2020;Trust Server Certificate=True
     depends_on:
-      thoughtfuldatabase:
-        condition: service_healthy
+      - thoughtfuldatabase
+    healthcheck:
+     test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+     interval: 10s
+     timeout: 5s
+     retries: 10
     networks:
-     - thoughtfulnetwork
+      - thoughtfulnetwork
     restart: on-failure
+    volumes:
+        - C:/Users/obenhassen/Documents/Thoughtful-Backend/Thoughtful.Api/wwwroot/uploads/contributions:/app/wwwroot/uploads/contributions
   thoughtfuldatabase:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name:  thoughtfuldatabase
+    container_name: thoughtfuldatabase
     ports:
-     - "1433:1433"
+      - "1433:1433"
     volumes:
-     - sqlvolume:/var/opt/mssql
+      - sqlvolume:/var/opt/mssql
     networks:
       - thoughtfulnetwork
     environment:
       ACCEPT_EULA: "Y"
-      SA_PASSWORD: "Password123$"
+      SA_PASSWORD: "Test$2020"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'Test$2020' -Q 'SELECT 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 networks:
- thoughtfulnetwork:
+  thoughtfulnetwork:
+
 volumes:
   sqlvolume:
-    # volumes:
-    #   -

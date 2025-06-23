@@ -8,6 +8,7 @@ namespace Thoughtful.Api.Features.Blogs.Handlers
     public class AddContributorHandler : IRequestHandler<AddContributor, Result<string>>
     {
         private readonly ThoughtfulDbContext _ctx;
+
         public AddContributorHandler(ThoughtfulDbContext ctx)
         {
             _ctx = ctx;
@@ -17,7 +18,8 @@ namespace Thoughtful.Api.Features.Blogs.Handlers
         {
             var result = new Result<string>();
             string _uploadRoot = AppSettings.UploadFilePath;
-            string FileName = "";
+            string fileName = "";
+
             var blog = await _ctx.Blogs
                     .Include(b => b.Contributors)
                     .FirstOrDefaultAsync(b => b.Id == request.Contribution.BlogId, cancellationToken);
@@ -27,41 +29,41 @@ namespace Thoughtful.Api.Features.Blogs.Handlers
 
             if (blog == null || user == null)
             {
-                return await Task.FromResult(Result<string>.Failure(new Error($"Invalid blog or contributor ID.", "InvalidBlog")));
-
+                return Result<string>.Failure(new Error($"Invalid blog or contributor ID.", "InvalidBlog"));
             }
 
             if (blog.Contributors.Any(c => c.UserId == user.Id))
             {
-
-                return await Task.FromResult(Result<string>.Failure(new Error($"Contributor {user.UserName} is already added to the blog {blog.Id}", "ContributionAlreadyExists")));
+                return Result<string>.Failure(new Error($"Contributor {user.UserName} is already added to the blog {blog.Id}", "ContributionAlreadyExists"));
             }
 
-
+            if (request.Contribution.File.Length > 10 * 1024 * 1024) 
+            {
+                return Result<string>.Failure(new Error("File size exceeds 10MB limit", "FileTooLarge"));
+            }
             if (request.Contribution.File != null && request.Contribution.File.Length > 0)
             {
+                Directory.CreateDirectory(_uploadRoot);
 
-                // Create the directory if it does not exist.
-                if (!Directory.Exists(_uploadRoot))
+                fileName = Path.GetFileNameWithoutExtension(request.Contribution.File.FileName)
+                    .Replace(" ", "_")
+                    .Replace("(", "")
+                    .Replace(")", "")
+                    + Path.GetExtension(request.Contribution.File.FileName);
+
+                var filePath = Path.Combine(_uploadRoot, fileName);
+                Console.WriteLine($"filePath :  {filePath}");
+
+                Console.WriteLine($"Attempting to save file to: {filePath}");
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    Directory.CreateDirectory(_uploadRoot);
+                    await request.Contribution.File.CopyToAsync(stream);
                 }
-                FileName = Path.GetFileName(request.Contribution.File.FileName);
 
-                // Save the uploaded file to the server.
-                string strFilePath = _uploadRoot + FileName;
-                if (File.Exists(strFilePath))
+                if (!File.Exists(filePath))
                 {
-
-                    return await Task.FromResult(Result<string>.Failure(new Error($" {FileName} already exists on the server!", "FileAlreadyExists")));
-
-                }
-                else
-                {
-                    using (var stream = System.IO.File.Create(strFilePath))
-                    {
-                        await request.Contribution.File.CopyToAsync(stream);
-                    }
+                    return Result<string>.Failure(new Error("Failed to save file to disk", "FileSaveError"));
                 }
             }
 
@@ -70,17 +72,12 @@ namespace Thoughtful.Api.Features.Blogs.Handlers
                 BlogId = blog.Id,
                 UserId = user.Id,
                 Note = request.Contribution.Note,
-                Filename = FileName,
+                Filename = fileName,
                 ContributionDate = DateTime.UtcNow
             });
 
-            int resultSaving = await _ctx.SaveChangesAsync(cancellationToken);
-            if (resultSaving > 0)
-            {
-                return await Task.FromResult(Result<string>.Success($"Contributor with Id {user.Id} added successfully."));
-            }
-
-            return result;
+            await _ctx.SaveChangesAsync(cancellationToken);
+            return Result<string>.Success($"Contributor with Id {user.Id} added successfully.");
         }
     }
 }
