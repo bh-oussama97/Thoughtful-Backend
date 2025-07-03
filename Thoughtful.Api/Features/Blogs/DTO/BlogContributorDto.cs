@@ -7,13 +7,12 @@
 
         public string Note { get; set; }
         public string Filename { get; set; }
+        public string Extension { get; set; }
+
         public DateTime ContributionDate { get; set; }
 
         // Optional: nested DTOs
         public UserDto User { get; set; }
-
-        public string extension { get; set; }
-
 
     }
 

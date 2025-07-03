@@ -56,6 +56,7 @@ namespace Thoughtful.Api.Features.Blogs.Handlers
 
                 Console.WriteLine($"Attempting to save file to: {filePath}");
 
+
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await request.Contribution.File.CopyToAsync(stream);
@@ -66,6 +67,9 @@ namespace Thoughtful.Api.Features.Blogs.Handlers
                     return Result<string>.Failure(new Error("Failed to save file to disk", "FileSaveError"));
                 }
             }
+            string extension = Path.GetExtension(request.Contribution?.File?.FileName ?? "")
+                      ?.TrimStart('.')
+                      .ToLower();
 
             blog.Contributors.Add(new BlogContributor
             {
@@ -73,6 +77,7 @@ namespace Thoughtful.Api.Features.Blogs.Handlers
                 UserId = user.Id,
                 Note = request.Contribution.Note,
                 Filename = fileName,
+                Extension = extension,
                 ContributionDate = DateTime.UtcNow
             });
 
