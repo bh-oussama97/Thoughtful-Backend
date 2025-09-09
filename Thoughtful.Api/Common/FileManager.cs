@@ -1,47 +1,10 @@
 ﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace Thoughtful.Api.Common
 {
     public class FileManager
     {
-
-        public static byte[] ConvertBase6(string filePath, string filename)
-        {
-            string imagePath = Path.Combine(filePath, filename);
-            byte[] imageBytes = System.IO.File.ReadAllBytes(imagePath);
-            return imageBytes;
-        }
-
-        public static Row CreateKeyValueRow(string key, string value)
-        {
-            Row row = new Row();
-            row.Append(CreateCell(key), CreateCell(value));
-            return row;
-        }
-
-        public static Row CreateMergedRow(string text, int mergeColumns, bool bold = false, int fontSize = 14)
-        {
-            Row row = new Row();
-            Cell cell = CreateCell(text);
-            row.Append(cell);
-
-            for (int i = 1; i < mergeColumns; i++)
-            {
-                row.Append(new Cell());
-            }
-
-            return row;
-        }
-
-        public static Cell CreateCell(string value)
-        {
-            return new Cell()
-            {
-                DataType = CellValues.String,
-                CellValue = new CellValue(value ?? string.Empty)
-            };
-        }
-
         public static Cell CreateStyledCell(string text, uint styleIndex)
         {
             return new Cell
@@ -95,6 +58,14 @@ namespace Thoughtful.Api.Common
             };
         }
 
-
+        public static string GetContentType(string path)
+        {
+            var provider = new FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(path, out var contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+            return contentType;
+        }
     }
 }

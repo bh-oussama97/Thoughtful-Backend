@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Thoughtful.Api.Common;
 using Thoughtful.Api.Features.Authentication.Commands;
 using Thoughtful.Api.Features.Authentication.DTO;
+using Thoughtful.Api.Features.Authentication.Queries;
+using Thoughtful.Api.Features.Blogs.DTO;
 using Thoughtful.Dal;
 
 namespace Thoughtful.Api.Controllers
@@ -34,6 +37,32 @@ namespace Thoughtful.Api.Controllers
         {
 
             var result = await _mediator.Send(new RegisterUser { RegisterRequest = dto });
+            if (result == null)
+            {
+                return BadRequest("Error");
+            }
+            return Ok(result);
+        }
+
+        [HttpPost]
+
+        public async Task<ActionResult<Result<UserGetDTO>>> SaveUserProfileInformations([FromForm] UserProfileDTO dto)
+        {
+
+            var result = await _mediator.Send(new SaveUserProfileInformations { UserProfile = dto });
+            if (result == null)
+            {
+                return BadRequest("Error");
+            }
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<ActionResult<Result<UserGetDTO>>> GetUserData()
+        {
+
+            var result = await _mediator.Send(new GetUserDataQuery {  });
             if (result == null)
             {
                 return BadRequest("Error");

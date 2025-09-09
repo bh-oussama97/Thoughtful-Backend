@@ -29,19 +29,11 @@ namespace Thoughtful.Api.Features.Author.Handlers
             }
             memory.Position = 0;
 
-            return new FileStreamResult(memory, GetContentType(filePath))
+            return new FileStreamResult(memory, FileManager.GetContentType(filePath))
             {
                 FileDownloadName = Path.GetFileName(filePath)
             };
         }
-        private string GetContentType(string path)
-        {
-            var provider = new FileExtensionContentTypeProvider();
-            if (!provider.TryGetContentType(path, out var contentType))
-            {
-                contentType = "application/octet-stream";
-            }
-            return contentType;
-        }
+
     }
 }

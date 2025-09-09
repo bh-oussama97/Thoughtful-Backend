@@ -43,16 +43,6 @@ namespace Thoughtful.Dal
                 entity.ToTable(name: "Roles");
 
             });
-            // Many-to-Many: Blog Contributors
-            //modelBuilder.Entity<Blog>()
-            //    .HasMany(b => b.Contributors)
-            //    .WithMany(a => a.BlogsContributedTo)
-            //    .UsingEntity<Dictionary<string, object>>(
-            //        "BlogContributors",
-            //        j => j.HasOne<Author>().WithMany().HasForeignKey("AuthorId"),
-            //        j => j.HasOne<Blog>().WithMany().HasForeignKey("BlogId"),
-            //        j => j.ToTable("BlogContributors")
-            //    );
 
             // one-to-many: one category -> many articles
             modelBuilder.Entity<Article>()
@@ -64,6 +54,10 @@ namespace Thoughtful.Dal
             modelBuilder.Entity<Author>()
                  .ToTable("Authors")
                  .HasKey(t => t.Id);
+
+            modelBuilder.Entity<UserProfilePhoto>()
+             .ToTable("ProfilePhotos")
+             .HasKey(t => t.Id);
 
             modelBuilder.Entity<Article>()
                  .ToTable("Articles")
@@ -89,6 +83,12 @@ namespace Thoughtful.Dal
                 .WithMany(u => u.BlogContributions)
                 .HasForeignKey(bc => bc.UserId);
 
+
+            modelBuilder.Entity<UserProfilePhoto>()
+                .HasOne(bc => bc.User)
+                .WithMany(u => u.UserPhotos)
+                .HasForeignKey(bc => bc.UserId);
+
         }
         public DbSet<Article> Articles { get; set; }
         public DbSet<Category> Categories { get; set; }
@@ -97,6 +97,7 @@ namespace Thoughtful.Dal
         public DbSet<AppUser> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<ApplicationUserRole> UserRoles { get; set; }
+        public DbSet<UserProfilePhoto> UserProfilePhotos { get; set; }
 
     }
 }

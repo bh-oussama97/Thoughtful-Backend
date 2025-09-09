@@ -14,11 +14,12 @@ namespace Thoughtful.Api.Features.Authentication.Handlers
         private readonly SignInManager<AppUser> _siginInmanager;
         private readonly JwtService _JwtService;
 
-        public LoginUserHandler(UserManager<AppUser> userManager, JwtService jwtService, SignInManager<AppUser> signInManager)
+        public LoginUserHandler(UserManager<AppUser> userManager, JwtService jwtService, SignInManager<AppUser> signInManager,ThoughtfulDbContext ctx)
         {
             _userManager = userManager;
             _JwtService = jwtService;
             _siginInmanager = signInManager;
+            _ctx = ctx;
         }
         public async Task<Result<UserGetDTO>> Handle(LoginUser request, CancellationToken cancellationToken)
         {
@@ -42,7 +43,7 @@ namespace Thoughtful.Api.Features.Authentication.Handlers
                     Id = user.Id,
                     Email = user.Email,
                     UserName = user.UserName,
-                    Token = _JwtService.createToken(user)
+                    Token = _JwtService.createToken(user),
                 };
             }
             else

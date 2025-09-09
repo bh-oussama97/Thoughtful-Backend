@@ -14,7 +14,7 @@ namespace Thoughtful.Api
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            AppSettings.Initiate(Configuration["uploadFilePath"]);
+            AppSettings.Initiate(Configuration["uploadFilePath"], Configuration["profilePhotoPath"]);
         }
 
         public IConfiguration Configuration { get; }

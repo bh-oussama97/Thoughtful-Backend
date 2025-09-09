@@ -371,6 +371,26 @@ namespace Thoughtful.Dal.Migrations
                     b.ToTable("Roles", (string)null);
                 });
 
+            modelBuilder.Entity("Thoughtful.Domain.Model.UserProfilePhoto", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ProfilePhotos", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Thoughtful.Domain.Model.Role", null)
@@ -471,9 +491,22 @@ namespace Thoughtful.Dal.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Thoughtful.Domain.Model.UserProfilePhoto", b =>
+                {
+                    b.HasOne("Thoughtful.Domain.Model.AppUser", "User")
+                        .WithMany("UserPhotos")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Thoughtful.Domain.Model.AppUser", b =>
                 {
                     b.Navigation("BlogContributions");
+
+                    b.Navigation("UserPhotos");
 
                     b.Navigation("UserRoles");
                 });

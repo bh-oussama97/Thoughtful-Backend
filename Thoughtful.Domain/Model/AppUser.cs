@@ -9,5 +9,6 @@ namespace Thoughtful.Domain.Model
     {
         public ICollection<ApplicationUserRole> UserRoles { get; set; }
         public ICollection<BlogContributor> BlogContributions { get; set; }
+        public ICollection<UserProfilePhoto> UserPhotos { get; set; }
     }
 }
