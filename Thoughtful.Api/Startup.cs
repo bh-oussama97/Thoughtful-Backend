@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
 using Thoughtful.Api.Common;
+using Thoughtful.Api.Middleware;
 using Thoughtful.Dal;
 using Thoughtful.Domain.Model;
 
@@ -95,6 +96,7 @@ namespace Thoughtful.Api
 
         public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            app.UseMiddleware<ExceptionMiddleware>();
 
             if (env.IsDevelopment())
             {

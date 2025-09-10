@@ -59,7 +59,7 @@ namespace Thoughtful.Api.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<Result<UserGetDTO>>> GetUserData()
+        public async Task<ActionResult<Result<UserDataDTO>>> GetUserData()
         {
 
             var result = await _mediator.Send(new GetUserDataQuery {  });
