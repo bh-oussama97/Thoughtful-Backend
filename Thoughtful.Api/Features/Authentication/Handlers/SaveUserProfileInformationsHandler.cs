@@ -7,7 +7,7 @@ using Thoughtful.Domain.Model;
 
 namespace Thoughtful.Api.Features.Authentication.Handlers
 {
-    public class SaveUserProfileInformationsHandler : IRequestHandler<SaveUserProfileInformations, Result<UserGetDTO>>
+    public class SaveUserProfileInformationsHandler : IRequestHandler<SaveUserProfileInformations, Result<UserDataDTO>>
     {
         private readonly ThoughtfulDbContext _context;
         private readonly IMapper _mapper;
@@ -20,7 +20,7 @@ namespace Thoughtful.Api.Features.Authentication.Handlers
             _mapper = mapper;
             _userManager = userManager;
         }
-        public async Task<Result<UserGetDTO>> Handle(SaveUserProfileInformations request, CancellationToken cancellationToken)
+        public async Task<Result<UserDataDTO>> Handle(SaveUserProfileInformations request, CancellationToken cancellationToken)
         {
             try
             {
@@ -32,7 +32,7 @@ namespace Thoughtful.Api.Features.Authentication.Handlers
                     .FirstOrDefaultAsync(u => u.Id == request.UserProfile.Id, cancellationToken);
 
                 if (user == null)
-                    return Result<UserGetDTO>.Failure(new Error("NotFound", "User not found"));
+                    return Result<UserDataDTO>.Failure(new Error("NotFound", "User not found"));
 
                 user.UserName = request.UserProfile.UserName ?? user.UserName;
                 user.Email = request.UserProfile.Email ?? user.Email;
@@ -40,7 +40,7 @@ namespace Thoughtful.Api.Features.Authentication.Handlers
 
                 if (request.UserProfile.Avatar.Length > 10 * 1024 * 1024)
                 {
-                    return Result<UserGetDTO>.Failure(new Error("File size exceeds 10MB limit", "FileTooLarge"));
+                    return Result<UserDataDTO>.Failure(new Error("File size exceeds 10MB limit", "FileTooLarge"));
                 }
                 if (request.UserProfile.Avatar != null && request.UserProfile.Avatar.Length > 0)
                 {
@@ -61,7 +61,7 @@ namespace Thoughtful.Api.Features.Authentication.Handlers
 
                     if (!File.Exists(filePath))
                     {
-                        return Result<UserGetDTO>.Failure(new Error("Failed to save file to disk", "FileSaveError"));
+                        return Result<UserDataDTO>.Failure(new Error("Failed to save file to disk", "FileSaveError"));
                     }
                 }
 
@@ -84,30 +84,54 @@ namespace Thoughtful.Api.Features.Authentication.Handlers
                     }
                 }
 
-
                 if (!string.IsNullOrEmpty(request.UserProfile.OldPassword)
                     && !string.IsNullOrEmpty(request.UserProfile.NewPassword))
                 {
                     var passwordCheck = await _userManager.CheckPasswordAsync(user, request.UserProfile.OldPassword);
                     if (!passwordCheck)
                     {
-                        return Result<UserGetDTO>.Failure(new Error("Old password is incorrect", ""));
+                        return Result<UserDataDTO>.Failure(new Error("Old password is incorrect", ""));
                     }
 
                     var passwordResult = await _userManager.ChangePasswordAsync(user, request.UserProfile.OldPassword, request.UserProfile.NewPassword);
                     if (!passwordResult.Succeeded)
                     {
                         var errors = string.Join("; ", passwordResult.Errors.Select(e => e.Description));
-                        return Result<UserGetDTO>.Failure(new Error($"Password change failed: {errors}", $""));
+                        return Result<UserDataDTO>.Failure(new Error($"Password change failed: {errors}", $""));
                     }
                 }
                 await _context.SaveChangesAsync(cancellationToken);
-                var dto = _mapper.Map<UserGetDTO>(user);
-                return Result<UserGetDTO>.Success(dto);
+                var dto = _mapper.Map<UserDataDTO>(user);
+
+                //Load avatar file after being saved
+                var userAvtarPhoto = user.UserPhotos.OrderByDescending(p => p.Id).FirstOrDefault();
+                if (userAvtarPhoto != null && !string.IsNullOrEmpty(userAvtarPhoto.FileName))
+                {
+                    string filePath = Path.Combine(_uploadRoot, userAvtarPhoto.FileName);
+
+                    if (File.Exists(filePath))
+                    {
+                        var memory = new MemoryStream();
+                        await using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                        {
+                            await stream.CopyToAsync(memory, cancellationToken);
+                        }
+                        memory.Position = 0;
+
+                        // Convert to Base64 so it can be safely returned in JSON
+                        var bytes = memory.ToArray();
+                        var base64 = Convert.ToBase64String(bytes);
+                        var contentType = FileManager.GetContentType(filePath);
+
+                        dto.Avatar = $"data:{contentType};base64,{base64}";
+                    }
+                }
+
+                return Result<UserDataDTO>.Success(dto);
             }
             catch (Exception ex)
             {
-                return Result<UserGetDTO>.Failure(new Error("DatabaseError", ex.Message));
+                return Result<UserDataDTO>.Failure(new Error("DatabaseError", ex.Message));
             }
 
 

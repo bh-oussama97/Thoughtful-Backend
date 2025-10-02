@@ -98,6 +98,8 @@ namespace Thoughtful.Dal
         public DbSet<Role> Roles { get; set; }
         public DbSet<ApplicationUserRole> UserRoles { get; set; }
         public DbSet<UserProfilePhoto> UserProfilePhotos { get; set; }
+        public DbSet<ResetPassword> ResetPasswords { get; set; }
+
 
     }
 }

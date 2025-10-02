@@ -3,7 +3,7 @@ using Thoughtful.Api.Features.Authentication.DTO;
 
 namespace Thoughtful.Api.Features.Authentication.Commands
 {
-    public class SaveUserProfileInformations :  IRequest<Result<UserGetDTO>>
+    public class SaveUserProfileInformations :  IRequest<Result<UserDataDTO>>
     {
         public  UserProfileDTO  UserProfile { get; set; }
     }

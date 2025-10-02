@@ -7,6 +7,8 @@ using Thoughtful.Api.Common;
 using Thoughtful.Api.Middleware;
 using Thoughtful.Dal;
 using Thoughtful.Domain.Model;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using static Thoughtful.Api.Common.AppSettings;
 
 namespace Thoughtful.Api
 {
@@ -15,7 +17,7 @@ namespace Thoughtful.Api
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            AppSettings.Initiate(Configuration["uploadFilePath"], Configuration["profilePhotoPath"]);
+            AppSettings.Initiate(Configuration["uploadFilePath"], Configuration["profilePhotoPath"], Configuration.GetSection("Email").Get<EmailModel>());
         }
 
         public IConfiguration Configuration { get; }

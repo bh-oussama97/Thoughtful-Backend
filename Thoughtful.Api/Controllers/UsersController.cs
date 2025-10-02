@@ -21,7 +21,7 @@ namespace Thoughtful.Api.Controllers
             this._context = context;
         }
         [HttpPost]
-        public async Task<ActionResult<Result<UserGetDTO>>> Login(LoginRequestDTO loginDTO)
+        public async Task<ActionResult<Result<UserDataDTO>>> Login(LoginRequestDTO loginDTO)
         {
             var result = await this._mediator.Send(new LoginUser { LoginRequest = loginDTO });
             if (result == null)
@@ -46,7 +46,7 @@ namespace Thoughtful.Api.Controllers
 
         [HttpPost]
 
-        public async Task<ActionResult<Result<UserGetDTO>>> SaveUserProfileInformations([FromForm] UserProfileDTO dto)
+        public async Task<ActionResult<Result<UserDataDTO>>> SaveUserProfileInformations([FromForm] UserProfileDTO dto)
         {
 
             var result = await _mediator.Send(new SaveUserProfileInformations { UserProfile = dto });
@@ -68,6 +68,27 @@ namespace Thoughtful.Api.Controllers
                 return BadRequest("Error");
             }
             return Ok(result);
+        }
+
+        [HttpPost]
+
+        public async Task<ActionResult<Result<string>>> SendPasswordResetCode([FromQuery]string email)
+        {
+
+            if (string.IsNullOrEmpty(email))
+            {
+                return BadRequest("Email should not be null or empty");
+            }
+            var res = await _mediator.Send(new ResetPassword { Email = email });
+
+            return Ok(res);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO data)
+        {
+            var res = await _mediator.Send(new CreateNewPassword { ResetPasswordDto = data });
+            return Ok(res);
         }
     }
 }

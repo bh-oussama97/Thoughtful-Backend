@@ -3,8 +3,8 @@ using Thoughtful.Api.Features.Authentication.DTO;
 
 namespace Thoughtful.Api.Features.Authentication.Commands
 {
-    public class LoginUser : IRequest<Result<UserDataDTO>>
+    public class CreateNewPassword : IRequest<Result<string>>
     {
-        public LoginRequestDTO LoginRequest { get; set; }
+        public ResetPasswordDTO ResetPasswordDto { get; set; }
     }
 }

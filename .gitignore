@@ -355,3 +355,4 @@ MigrationBackup/
 /.idea/.idea.Thoughtful/.idea
 .vs/
 .git/
+/Thoughtful.Api/wwwroot/
