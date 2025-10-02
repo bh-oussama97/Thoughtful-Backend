@@ -356,3 +356,5 @@ MigrationBackup/
 .vs/
 .git/
 /Thoughtful.Api/wwwroot/
+/Thoughtful.Api/wwwroot/uploads/contributions/
+/Thoughtful.Api/wwwroot/uploads/profilePhotos/
