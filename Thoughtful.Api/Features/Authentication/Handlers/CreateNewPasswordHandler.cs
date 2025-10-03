@@ -26,27 +26,41 @@ namespace Thoughtful.Api.Features.Authentication.Handlers
                 .Where(rp => rp.ResetCode == request.ResetPasswordDto.Otp && rp.UserId == user.Id)
                 .OrderByDescending(rp => rp.InsertDateTimeUTC)
                 .FirstOrDefaultAsync();
-
-            // Verify if token is older than 15 minutes
-            var expirationDateTimeUtc = resetPasswordDetails.InsertDateTimeUTC.AddMinutes(15);
-
             Result<string> response = new Result<string>();
 
-            if (expirationDateTimeUtc < DateTime.UtcNow)
+
+            if (resetPasswordDetails is not null)
+            {
+                // Verify if token is older than 15 minutes
+                var expirationDateTimeUtc = resetPasswordDetails.InsertDateTimeUTC.AddMinutes(15);
+
+
+                if (expirationDateTimeUtc < DateTime.UtcNow)
+                {
+                    response.IsSuccess = false;
+                    response.Body = "Reset code is expired, please generate a new one !";
+                }
+
+                var res = await _userManager.ResetPasswordAsync(user, resetPasswordDetails.Token, request.ResetPasswordDto.NewPassword);
+
+
+                if (res.Succeeded)
+                {
+                    response.IsSuccess = true;
+                    response.Body = "Password Changed !";
+                }
+                else
+                {
+                    response.IsSuccess = false;
+                    response.Body = String.Join(",", res.Errors.Select(x => x.Description).ToList());
+                }
+
+            }
+            else
             {
                 response.IsSuccess = false;
-                response.Body = "Reset code is expired, please generate a new one !";
+                response.Body = "Reset code wrong , verify it !";
             }
-
-            var res = await _userManager.ResetPasswordAsync(user, resetPasswordDetails.Token, request.ResetPasswordDto.NewPassword);
-
-
-            if (res.Succeeded)
-            {
-                response.IsSuccess = true;
-                response.Body = "Password Changed !";
-            }
-
 
             return response;
         }
